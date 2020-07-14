@@ -1,7 +1,6 @@
 /*
- * Copyright (C) Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2009-2016 Lightbend Inc. <https://www.lightbend.com>
  */
-
 package play.routes.compiler
 
 import java.io.File
@@ -10,7 +9,7 @@ import org.specs2.mutable.Specification
 import org.specs2.matcher.FileMatchers
 import play.routes.compiler.RoutesCompiler.RoutesCompilerTask
 
-class RoutesCompilerSpec extends Specification with FileMatchers {
+object RoutesCompilerSpec extends Specification with FileMatchers {
 
   sequential
 
