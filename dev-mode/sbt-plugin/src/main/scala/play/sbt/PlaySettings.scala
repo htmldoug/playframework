@@ -21,6 +21,7 @@ import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
 import com.typesafe.sbt.packager.Keys._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import WebKeys._
+import play.twirl.sbt.Import.TwirlKeys.twirlVersion
 
 object PlaySettings extends PlaySettingsCompat {
 
@@ -39,7 +40,14 @@ object PlaySettings extends PlaySettingsCompat {
   )
 
   lazy val defaultScalaSettings = Seq[Setting[_]](
-    TwirlKeys.templateImports ++= TemplateImports.defaultScalaTemplateImports.asScala
+    TwirlKeys.templateImports ++= TemplateImports.defaultScalaTemplateImports.asScala,
+    /**
+     * {{{
+     *   java.lang.NoSuchMethodError: views.html.defaultpages.devError_Scope0$devError._display_(Ljava/lang/Object;Lscala/reflect/Manifest;)Lplay/twirl/api/Appendable;
+     * }}}
+     * (1.1.1 (2.5) => 1.3.16 (2.6?): Manifest => ClassTag
+     */
+    twirlVersion := "1.1.1"
   )
 
   /** Ask sbt to manage the classpath for the given configuration. */

@@ -378,6 +378,21 @@ lazy val PlayDocsSbtPlugin = PlaySbtPluginProject("Play-Docs-Sbt-Plugin", "dev-m
   )
   .dependsOn(SbtPluginProject)
 
+lazy val backports = project
+  .aggregate(
+  RunSupportProject,
+  BuildLinkProject,
+  RoutesCompilerProject,
+  SbtRoutesCompilerProject,
+  SbtPluginProject,
+)
+  .settings(
+    cleanPublishLocal := IO.delete(file("/Users/doug.roper/.ivy2/local/com.typesafe.play")),
+    publishLocal := publishLocal.dependsOn(cleanPublishLocal).value
+  )
+
+val cleanPublishLocal = taskKey[Unit]("wipe")
+
 lazy val publishedProjects = Seq[ProjectReference](
   PlayProject,
   PlayGuiceProject,
@@ -432,3 +447,5 @@ lazy val PlayFramework = Project("Play-Framework", file("."))
     Release.settings
   )
   .aggregate(publishedProjects: _*)
+
+Global / onChangedBuildSource := ReloadOnSourceChanges
