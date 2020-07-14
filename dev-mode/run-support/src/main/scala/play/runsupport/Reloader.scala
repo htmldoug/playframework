@@ -15,10 +15,9 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.Timer
 import java.util.TimerTask
 
-import better.files.{ File => _, _ }
+import better.files.{File => _, _}
 import play.api.PlayException
-import play.core.Build
-import play.core.BuildLink
+import play.core.{Build, BuildDocHandler, BuildLink}
 import play.dev.filewatch.FileWatchService
 import play.runsupport.classloader.ApplicationClassLoaderProvider
 import play.runsupport.classloader.DelegatingClassLoader
@@ -265,16 +264,23 @@ object Reloader {
 
       val server = {
         val mainClass = applicationLoader.loadClass(mainClassName)
+        val docHandler: BuildDocHandler = new BuildDocHandler {
+          override def maybeHandleDocRequest(request: Any): AnyRef = None
+        }
         if (httpPort.isDefined) {
-          val mainDev = mainClass.getMethod("mainDevHttpMode", classOf[BuildLink], classOf[Int], classOf[String])
-          mainDev
-            .invoke(null, reloader, httpPort.get: java.lang.Integer, httpAddress)
-            .asInstanceOf[play.core.server.ReloadableServer]
+          val mainDev = mainClass.getMethod("mainDevHttpMode", classOf[BuildLink], classOf[BuildDocHandler], classOf[Int], classOf[String])
+          new ServerWithStopReloadableServer(
+            mainDev
+              .invoke(null, reloader, docHandler, httpPort.get: java.lang.Integer, httpAddress)
+              .asInstanceOf[play.core.server.ServerWithStop]
+          )
         } else {
-          val mainDev = mainClass.getMethod("mainDevOnlyHttpsMode", classOf[BuildLink], classOf[Int], classOf[String])
-          mainDev
-            .invoke(null, reloader, httpsPort.get: java.lang.Integer, httpAddress)
-            .asInstanceOf[play.core.server.ReloadableServer]
+          val mainDev = mainClass.getMethod("mainDevOnlyHttpsMode", classOf[BuildDocHandler], classOf[BuildLink], classOf[Int], classOf[String])
+          new ServerWithStopReloadableServer(
+            mainDev
+              .invoke(null, reloader, docHandler, httpsPort.get: java.lang.Integer, httpAddress)
+              .asInstanceOf[play.core.server.ServerWithStop]
+          )
         }
       }
 
