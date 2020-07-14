@@ -90,6 +90,8 @@ object PlayRun extends PlayRunCompat {
       playMonitoredFiles.value,
       fileWatchService.value,
       generatedSourceHandlers,
+      (managedClasspath in DocsApplication).value.files,
+      playDocsJar.value,
       playDefaultPort.value,
       playDefaultAddress.value,
       baseDirectory.value,

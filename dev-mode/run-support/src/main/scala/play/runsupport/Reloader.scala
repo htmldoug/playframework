@@ -14,6 +14,7 @@ import java.time.Instant
 import java.util.concurrent.atomic.AtomicReference
 import java.util.Timer
 import java.util.TimerTask
+import java.util.jar.JarFile
 
 import better.files.{File => _, _}
 import play.api.PlayException
@@ -167,6 +168,7 @@ object Reloader {
       monitoredFiles: Seq[File],
       fileWatchService: FileWatchService,
       generatedSourceHandlers: Map[String, GeneratedSourceMapping],
+      docsClasspath: Seq[File], docsJar: Option[File],
       defaultHttpPort: Int,
       defaultHttpAddress: String,
       projectPath: File,
@@ -262,23 +264,34 @@ object Reloader {
       // Now we're about to start, let's call the hooks:
       runHooks.run(_.beforeStarted())
 
+      // Get a handler for the documentation. The documentation content lives in play/docs/content
+      // within the play-docs JAR.
+      val docsLoader = new URLClassLoader(urls(docsClasspath), applicationLoader)
+      val maybeDocsJarFile = docsJar map { f => new JarFile(f) }
+      val docHandlerFactoryClass = docsLoader.loadClass("play.docs.BuildDocHandlerFactory")
+      val buildDocHandler = maybeDocsJarFile match {
+        case Some(docsJarFile) =>
+          val factoryMethod = docHandlerFactoryClass.getMethod("fromJar", classOf[JarFile], classOf[String])
+          factoryMethod.invoke(null, docsJarFile, "play/docs/content").asInstanceOf[BuildDocHandler]
+        case None =>
+          val factoryMethod = docHandlerFactoryClass.getMethod("empty")
+          factoryMethod.invoke(null).asInstanceOf[BuildDocHandler]
+      }
+
       val server = {
         val mainClass = applicationLoader.loadClass(mainClassName)
-        val docHandler: BuildDocHandler = new BuildDocHandler {
-          override def maybeHandleDocRequest(request: Any): AnyRef = None
-        }
         if (httpPort.isDefined) {
           val mainDev = mainClass.getMethod("mainDevHttpMode", classOf[BuildLink], classOf[BuildDocHandler], classOf[Int], classOf[String])
           new ServerWithStopReloadableServer(
             mainDev
-              .invoke(null, reloader, docHandler, httpPort.get: java.lang.Integer, httpAddress)
+              .invoke(null, reloader, buildDocHandler, httpPort.get: java.lang.Integer, httpAddress)
               .asInstanceOf[play.core.server.ServerWithStop]
           )
         } else {
           val mainDev = mainClass.getMethod("mainDevOnlyHttpsMode", classOf[BuildDocHandler], classOf[BuildLink], classOf[Int], classOf[String])
           new ServerWithStopReloadableServer(
             mainDev
-              .invoke(null, reloader, docHandler, httpsPort.get: java.lang.Integer, httpAddress)
+              .invoke(null, reloader, buildDocHandler, httpsPort.get: java.lang.Integer, httpAddress)
               .asInstanceOf[play.core.server.ServerWithStop]
           )
         }
