@@ -553,6 +553,8 @@ class Reloader(
     }.orNull
   }
 
+  def runTask(task: String): AnyRef = ??? // runSbtTask(task)
+
   def close() = {
     currentApplicationClassLoader = None
     currentSourceMap = None

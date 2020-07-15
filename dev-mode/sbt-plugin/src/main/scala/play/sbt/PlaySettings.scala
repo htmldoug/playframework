@@ -26,7 +26,7 @@ import play.twirl.sbt.Import.TwirlKeys.twirlVersion
 object PlaySettings extends PlaySettingsCompat {
 
   lazy val minimalJavaSettings = Seq[Setting[_]](
-    TwirlKeys.templateImports ++= TemplateImports.minimalJavaTemplateImports.asScala,
+    TwirlKeys.templateImports ++= TemplateImports.defaultJavaTemplateImports.asScala,
     RoutesKeys.routesImport ++= Seq(
       "play.libs.F"
     )

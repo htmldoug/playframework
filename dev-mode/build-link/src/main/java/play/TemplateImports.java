@@ -11,11 +11,10 @@ import java.util.List;
 
 public class TemplateImports {
 
-  public static final List<String> minimalJavaTemplateImports;
-  public static final List<String> defaultJavaTemplateImports;
-  public static final List<String> defaultScalaTemplateImports;
+  public static List<String> defaultJavaTemplateImports;
+  public static List<String> defaultScalaTemplateImports;
 
-  private static final List<String> defaultTemplateImports =
+  private static List<String> defaultTemplateImports =
       Collections.unmodifiableList(
           Arrays.asList(
               "models._",
@@ -25,24 +24,20 @@ public class TemplateImports {
               "play.api.templates.PlayMagic._"));
 
   static {
-    List<String> minimalJavaImports = new ArrayList<String>();
-    minimalJavaImports.addAll(defaultTemplateImports);
-    minimalJavaImports.add("java.lang._");
-    minimalJavaImports.add("java.util._");
-    minimalJavaImports.add("scala.collection.JavaConverters._");
-    minimalJavaImports.add("play.core.j.PlayMagicForJava._");
-    minimalJavaImports.add("play.mvc._");
-    minimalJavaImports.add("play.api.data.Field");
-    minimalJavaImports.add("play.mvc.Http.Context.Implicit._");
-    minimalJavaTemplateImports = Collections.unmodifiableList(minimalJavaImports);
+    List<String> javaImports = new ArrayList();
+    javaImports.addAll(defaultTemplateImports);
+    javaImports.add("java.lang._");
+    javaImports.add("java.util._");
+    javaImports.add("scala.collection.JavaConversions._");
+    javaImports.add("scala.collection.JavaConverters._");
+    javaImports.add("play.core.j.PlayMagicForJava._");
+    javaImports.add("play.mvc._");
+    javaImports.add("play.data._");
+    javaImports.add("play.api.data.Field");
+    javaImports.add("play.mvc.Http.Context.Implicit._");
+    defaultJavaTemplateImports = Collections.unmodifiableList(javaImports);
 
-    List<String> defaultJavaImports = new ArrayList<String>();
-    defaultJavaImports.addAll(minimalJavaTemplateImports);
-    defaultJavaImports.add("play.data._");
-    defaultJavaImports.add("play.core.j.PlayFormsMagicForJava._");
-    defaultJavaTemplateImports = Collections.unmodifiableList(defaultJavaImports);
-
-    List<String> scalaImports = new ArrayList<String>();
+    List<String> scalaImports = new ArrayList();
     scalaImports.addAll(defaultTemplateImports);
     scalaImports.add("play.api.mvc._");
     scalaImports.add("play.api.data._");

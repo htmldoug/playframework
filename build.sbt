@@ -389,21 +389,10 @@ lazy val SbtPluginProject = PlaySbtPluginProject("Sbt-Plugin", "dev-mode/sbt-plu
 //  )
 //  .dependsOn(SbtPluginProject)
 
-//lazy val backports = project
-//  .aggregate(
-//  RunSupportProject,
-//  BuildLinkProject,
-//  RoutesCompilerProject,
-//  SbtRoutesCompilerProject,
-//  SbtPluginProject,
-//)
-//  .settings(
-//    cleanPublishLocal := IO.delete(file("/Users/doug.roper/.ivy2/local/com.typesafe.play")),
-//    publishLocal := publishLocal.dependsOn(cleanPublishLocal).value
-//  )
+val rmIvyLocal = taskKey[Unit]("wipe")
+rmIvyLocal := IO.delete(file("/Users/doug.roper/.ivy2/local/com.rallyhealth.play"))
 
-val cleanPublishLocal = taskKey[Unit]("wipe")
-cleanPublishLocal := IO.delete(file("/Users/doug.roper/.ivy2/local/com.typesafe.play"))
+publishLocal := publishLocal.dependsOn(rmIvyLocal).value // root only
 
 lazy val publishedProjects = Seq[ProjectReference](
 //  PlayProject,
