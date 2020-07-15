@@ -199,6 +199,14 @@ import AkkaDependency._
 //    PlayProject % "compile;test->test"
 //  )
 //
+
+/**
+ * Hardcode.
+ * We need to depend on play jars, but want our own hacked plugin version to vary.
+ */
+lazy val playVersion = "2.5.19"
+
+
 lazy val SbtPluginProject = PlaySbtPluginProject("Sbt-Plugin", "dev-mode/sbt-plugin")
   .enablePlugins(SbtPlugin)
   .settings(
@@ -206,7 +214,7 @@ lazy val SbtPluginProject = PlaySbtPluginProject("Sbt-Plugin", "dev-mode/sbt-plu
     sourceGenerators in Compile += Def
       .task(
         PlayVersion(
-          version.value,
+          playVersion,
           defaultScalaVersion,
 //          (scalaVersion in PlayProject).value,
           sbtVersion.value,
